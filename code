@@ -1,0 +1,35 @@
+# Importing Libraries
+import tensorflow as tf
+from tensorflow import keras
+import numpy as np
+
+# Loading and Processing Datasets
+(train_images, train_labels), (test_images, test_labels) = keras.datasets.fashion_mnist.load_data()
+train_images = train_images.reshape(-1, 28, 28, 1) / 255.0
+test_images = test_images.reshape(-1, 28, 28, 1) / 255.0
+
+# Creating A CNN Model
+model = keras.Sequential([
+    keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)),
+    keras.layers.MaxPooling2D((2, 2)),
+    keras.layers.Conv2D(64, (3, 3), activation='relu'),
+    keras.layers.MaxPooling2D((2, 2)),
+    keras.layers.Flatten(),
+    keras.layers.Dense(64, activation='relu'),
+    keras.layers.Dense(10, activation='softmax')
+])
+
+# Compiling And Training The Model
+model.compile(optimizer='adam',
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              metrics=['accuracy'])
+model.fit(train_images, train_labels, epochs=10, validation_data=(test_images, test_labels))
+test_loss, test_accuracy = model.evaluate(test_images, test_labels, verbose=2)
+
+# Evaluating the Model
+print(f'Test loss: {test_loss}')
+print(f'Test accuracy: {test_accuracy}')
+
+# Making Predictions
+predictions = model.predict(test_images)
+predicted_labels = np.argmax(predictions, axis=1)
